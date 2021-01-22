@@ -1,0 +1,19 @@
+{
+  "main": "src/main.js",
+  "name": "bolool",
+  "version": "1.0.0",
+  "description": "bolool data jingcai",
+  "scripts": {
+    "serve": "node src/main.js",
+    "test": "node test/main.js"
+  },
+  "author": "zw",
+  "license": "ISC",
+  "dependencies": {
+    "bufferutil": "^4.0.1",
+    "cheerio": "^1.0.0-rc.5",
+    "mysql2": "^2.2.5",
+    "puppeteer": "^5.5.0",
+    "utf-8-validate": "^5.0.2"
+  }
+}
