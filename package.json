@@ -1,10 +1,10 @@
 {
-  "main": "src/main.js",
+  "main": "src/okooo.js",
   "name": "bolool",
   "version": "1.0.0",
   "description": "bolool data jingcai",
   "scripts": {
-    "serve": "node src/main.js",
+    "main": "node src/okooo.js",
     "test": "node test/main.js"
   },
   "author": "zw",

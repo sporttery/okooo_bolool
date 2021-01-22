@@ -37,7 +37,7 @@ async function saveMatchOdds() {
     var keys = [];
     for (var key in g_cache_odds) {
         var odds = g_cache_odds[key];
-        if (odds.finish == 2) {
+        if (odds.finish == 2 && odds.s && odds.p && odds.f && odds.h && odds.pan && odds.a) {
             keys.push(key);
         }
     }
@@ -279,11 +279,11 @@ async function getMatchCallback(d) {
         setTimeout(getMatch, (minId % 10) * 100);
     } else {
         console.log(new Date(), "当前id=" + minId + ",已经到了最大id=" + maxId + "，结束程序");
-        await finish();
+        await doFinish();
     }
 }
 
-async function finish() {
+async function doFinish() {
     console.log(new Date(), "缓存odds数据入库开始");
     await getOdds(true);
     console.log(new Date(), "缓存odds入库完成\n缓存match数据入库开始");
@@ -312,11 +312,15 @@ async function getMatch() {
 var hook_page = null;
 (async () => {
     if (!minId || !maxId || isNaN(minId) || isNaN(maxId)) {
+        let step = minId; //当只传一个参数时，从数据库里获取id,然后+argv[0] 为最大id,如果没有传参数，则+1000
         minId = parseInt(await getIdFromDb());
         if (isNaN(minId)) {
             minId = 610101;
         }
-        maxId = minId + 1000;
+        if (isNaN(step)) {
+            step = 1000;
+        }
+        maxId = minId + parseInt(step);
     }
     console.log(new Date(), {
         minId,
