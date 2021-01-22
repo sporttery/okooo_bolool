@@ -135,7 +135,7 @@ async function getOdds(nosettimeout) {
                 postData.bettingTypeId = 2;
                 $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
             }, matchIds, g_providerId);
-            await hook_page.waitFor(3000);
+            await hook_page.waitForTimeout(3000);
         }
     } else {
         if (matchIds.length > 50) {
@@ -286,7 +286,7 @@ async function getMatchCallback(d) {
 async function doFinish() {
     console.log(new Date(), "缓存odds数据入库开始");
     await getOdds(true);
-    console.log(new Date(), "缓存odds入库完成\n缓存match数据入库开始");
+    console.log(new Date(), "缓存odds入库完成;缓存match数据入库开始");
     await saveAll();
     console.log(new Date(), "缓存match入库完成");
     // await hook_page.browser().close();
