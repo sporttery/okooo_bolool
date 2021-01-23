@@ -16,6 +16,7 @@ async function getIdFromDb() {
     const conn = await mysql_pool.getConnection();
     const [rows, fields] = await conn.execute('SELECT max(id)+1 as id FROM `t_match`');
     conn.release();
+    // mysql_pool.releaseConnection(conn);
     return rows[0].id;
 }
 
@@ -29,25 +30,33 @@ const MATCH_SQL = "insert into t_match(id,leagueId,leagueName,leagueType,seasonI
 const BOLOOL_SQL = "insert into t_bolool(matchId,hscore,ascore,hresult,aresult,hsection,asection,hstrong,astrong,topN,friendly) values ";
 const MATCH_HISTORY_SQL = "insert into t_match_history(id,matchlist) values ";
 
-const g_cache_odds = {};
 const g_providerId = 27;
+let g_cache_odds = {};
 
+// function sleep(ms) {
+//     return new Promise(resolve => setTimeout(resolve, ms))
+// }
 
 async function saveMatchOdds() {
-    var keys = [];
+    // console.log(new Date(),"in function saveMatchOdds");
+    // var keys = [],
+    // count = 0;
+    var matchOdds = [];
     for (var key in g_cache_odds) {
         var odds = g_cache_odds[key];
-        if (odds.finish == 2 && odds.s && odds.p && odds.f && odds.h && odds.pan && odds.a) {
-            keys.push(key);
-        }
-    }
-    var matchOdds = [];
-    for (let index = 0; index < keys.length; index++) {
-        const key = keys[index];
-        var odds = g_cache_odds[key];
         matchOdds.push(odds);
-        delete g_cache_odds[key];
+        // if (odds.finish == 2) {
+        //     keys.push(key);
+        // }
+        // count++;
     }
+
+    // for (let index = 0; index < keys.length; index++) {
+    //     const key = keys[index];
+    //     var odds = g_cache_odds[key];
+    //     matchOdds.push(odds);
+    //     delete g_cache_odds[key];
+    // }
 
     var sql_values = [];
     for (var i = 0; i < matchOdds.length; i++) {
@@ -55,7 +64,9 @@ async function saveMatchOdds() {
         var values = [];
         for (var j = 0; j < ODDS_COLUMNS.length; j++) {
             var value = odds[ODDS_COLUMNS[j]];
-            if (isNaN(value) || value == "") {
+            if (typeof value == "undefined") {
+                values.push("null");
+            } else if (isNaN(value) || value === "") {
                 values.push("'" + value + "'");
             } else {
                 values.push(value);
@@ -64,13 +75,14 @@ async function saveMatchOdds() {
         sql_values.push("(" + values.join(",") + ")")
     }
     if (sql_values.length > 0) {
-
         const sql = ODDS_SQL + sql_values.join(",") + " ON DUPLICATE KEY UPDATE `version` = `version` + 1 ";
         try {
             const conn = await mysql_pool.getConnection();
             const [rows, fields] = await conn.execute(sql);
-            conn.release()
+            conn.release();
+            // mysql_pool.releaseConnection(conn);
             console.log(new Date(), "insert into t_match_odds ", rows.info);
+            g_cache_odds = {};
         } catch (e) {
             console.log(new Date(), e);
             console.log(new Date(), "saveMatchOdds:" + sql);
@@ -79,6 +91,7 @@ async function saveMatchOdds() {
 }
 
 async function getOddsCallback(data) {
+    console.log(new Date(), " in function getOddsCallback", data.toString().substring(0, 50));
     if (typeof data == "string" && data[0] == '{' && data[data.length - 1] == '}') {
         data = JSON.parse(data);
         for (var key in data) {
@@ -103,19 +116,20 @@ async function getOddsCallback(data) {
                 odds.finish += 1;
             }
         }
-        await saveMatchOdds();
+
     } else {
         console.log(new Date(), "getOddsCallback ", data);
     }
 
 }
-async function getOdds(nosettimeout) {
+async function getOdds(isFinish) {
     const sql = "select m.id  from t_match m left join t_match_odds o on m.id = o.matchId where o.matchId is null";
     var matchIds = [];
     try {
         const conn = await mysql_pool.getConnection();
         const [rows, fields] = await conn.execute(sql);
-        conn.release()
+        conn.release();
+        // mysql_pool.releaseConnection(conn);
         for (var i = 0; i < rows.length; i++) {
             matchIds.push(rows[i].id);
         }
@@ -123,36 +137,41 @@ async function getOdds(nosettimeout) {
         console.log(new Date(), e);
         console.log(new Date(), "getOdds:", sql);
     }
-    if (nosettimeout) {
-        if (matchIds.length > 0) {
-            await hook_page.evaluate((matchIds, g_providerId) => {
-                var postData = {
-                    bettingTypeId: 1,
-                    providerId: g_providerId,
-                    matchIds: matchIds.join(",")
-                };
-                $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
-                postData.bettingTypeId = 2;
-                $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
-            }, matchIds, g_providerId);
-            await hook_page.waitForTimeout(3000);
+    if (matchIds.length > 50 || (matchIds.length > 0 && isFinish)) {
+        await hook_page.evaluate((matchIds, g_providerId) => {
+            var postData = {
+                bettingTypeId: 1,
+                providerId: g_providerId,
+                matchIds: matchIds.join(",")
+            };
+            $.ajaxSetup({
+                async: false
+            });
+            $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
+            postData.bettingTypeId = 2;
+            $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
+            $.ajaxSetup({
+                async: true
+            });
+        }, matchIds, g_providerId);
+        if (isFinish) {
+            // const oddsData = await page.waitForResponse(async response => {
+            //     var url = await response.url();
+            //     if (url.indexOf("/ajax/?method=data.match.odds") != -1) {
+            //         // var text = await response.text();
+            //         // return text.indexOf("-") !=-1  || text.indexOf("球") !=-1 || text.indexOf("0.") !=-1 || text.indexOf("/") !=-1;
+            //         return await response.text();
+            //     }
+            // });
+            // getOddsCallback(oddsData);
+            // var yapan = oddsData.indexOf("-") != -1 || oddsData.indexOf("球") != -1 || oddsData.indexOf("0.") != -1 || oddsData.indexOf("/") != -1;
+            // if (yapan) {
+            await saveMatchOdds();
+            // }
         }
+        setTimeout(getOdds, (new Date().getTime() % 120) * 1000); //随机时间，防止被屏蔽
     } else {
-        if (matchIds.length > 50) {
-            await hook_page.evaluate((matchIds, g_providerId) => {
-                var postData = {
-                    bettingTypeId: 1,
-                    providerId: g_providerId,
-                    matchIds: matchIds.join(",")
-                };
-                $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
-                postData.bettingTypeId = 2;
-                $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
-            }, matchIds, g_providerId);
-            setTimeout(getOdds, (new Date().getTime() % 120) * 1000); //随机时间，防止被屏蔽
-        } else {
-            setTimeout(getOdds, (new Date().getTime() % 50) * 1000); //随机时间，防止被屏蔽
-        }
+        setTimeout(getOdds, (new Date().getTime() % 50) * 1000); //随机时间，防止被屏蔽
     }
     // const finalResponse = await page.waitForResponse(response => response.url() .indexOf( '/ajax/?method=data.match.odds') !=-1 && response.status() === 200);
 }
@@ -171,6 +190,9 @@ async function saveAll(match, boloolData, matchListHistory) {
         g_cache_data.boloolDatas.push(boloolData);
         g_cache_data.matchListHistories.push(matchListHistory);
     } else {
+        const conn = await mysql_pool.getConnection();
+        await conn.beginTransaction();
+        let needCommit = false;
         sql_values = [];
         var matchlist = g_cache_data.matches;
         for (var i = 0; i < matchlist.length; i++) {
@@ -189,13 +211,13 @@ async function saveAll(match, boloolData, matchListHistory) {
         if (sql_values.length > 0) {
             sql = MATCH_SQL + sql_values.join(",") + "  ON DUPLICATE KEY UPDATE `version`=`version` + 1 , `fullscore`=values(`fullscore`),`goalscore`=values(`goalscore`),`result`=values(`result`),`halfscore`=values(`halfscore`) ";
             try {
-                const conn = await mysql_pool.getConnection();
                 const [rows, fields] = await conn.execute(sql);
-                conn.release()
                 console.log(new Date(), "insert into t_match ", rows.info);
                 g_cache_data.matches = [];
+                needCommit = true;
             } catch (e) {
-                console.log(new Date(), e);
+                conn.rollback();
+                console.log(new Date(), '事务回滚', e.sqlMessage, e);
                 console.log(new Date(), "saveAll:", sql);
             }
         }
@@ -222,13 +244,13 @@ async function saveAll(match, boloolData, matchListHistory) {
 
             sql = BOLOOL_SQL + sql_values.join(",") + " ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection),hstrong = values(hstrong),astrong = values(astrong)";
             try {
-                const conn = await mysql_pool.getConnection();
                 const [rows, fields] = await conn.execute(sql);
-                conn.release()
                 console.log(new Date(), "insert into t_bolool ", rows.info);
                 g_cache_data.boloolDatas = [];
+                needCommit = true;
             } catch (e) {
-                console.log(new Date(), e);
+                conn.rollback();
+                console.log(new Date(), '事务回滚', e.sqlMessage, e);
                 console.log(new Date(), "saveAll:", sql);
             }
         }
@@ -252,14 +274,23 @@ async function saveAll(match, boloolData, matchListHistory) {
         if (sql_values.length > 0) {
             sql = MATCH_HISTORY_SQL + sql_values.join(",") + "  ON DUPLICATE KEY UPDATE `version`=`version` + 1  ";
             try {
-                const conn = await mysql_pool.getConnection();
                 const [rows, fields] = await conn.execute(sql);
-                conn.release()
                 console.log(new Date(), " insert into t_match_history " + rows.info);
                 g_cache_data.matchListHistories = [];
+                needCommit = true;
+            } catch (e) {
+                conn.rollback();
+                console.log(new Date(), '事务回滚', e.sqlMessage, e);
+                console.log(new Date(), "saveAll :", sql);
+            }
+        }
+        if (needCommit) {
+            try {
+                await conn.commit();
+                conn.release();
+                // mysql_pool.releaseConnection(conn);
             } catch (e) {
                 console.log(new Date(), e);
-                console.log(new Date(), "saveAll :", sql);
             }
         }
     }
@@ -274,7 +305,7 @@ async function getMatchCallback(d) {
     }
 
     if (minId < maxId) {
-        console.log(new Date(), "id=" + minId + "已经获取完成，即将获取下一个");
+        console.log(new Date(), "id=" + minId + "已经获取完成，还剩 " + (maxId - minId) + " 个");
         minId += 1;
         setTimeout(getMatch, (minId % 10) * 100);
     } else {
@@ -284,12 +315,12 @@ async function getMatchCallback(d) {
 }
 
 async function doFinish() {
-    console.log(new Date(), "缓存odds数据入库开始");
-    await getOdds(true);
-    console.log(new Date(), "缓存odds入库完成;缓存match数据入库开始");
+    console.log(new Date(), "缓存match数据入库开始");
     await saveAll();
     console.log(new Date(), "缓存match入库完成");
-    // await hook_page.browser().close();
+    console.log(new Date(), "缓存odds数据入库开始");
+    await getOdds(true);
+    console.log(new Date(), "缓存odds入库完成");
     await process.exit();
 }
 
