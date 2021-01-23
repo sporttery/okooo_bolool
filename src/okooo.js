@@ -3,7 +3,7 @@ const argv = process.argv.slice(2);
 // console.log(new Date(),argv);
 var minId = parseInt(argv[0]);
 var maxId = parseInt(argv[1]);
-var noOdds = parseInt(argv[3]);
+var noOdds = argv[3];
 
 var mysql_pool = require('./mysql_pool');
 
