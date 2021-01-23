@@ -123,16 +123,17 @@ async function getOddsCallback(data) {
     }
 
 }
+const oddsSql = "select m.id  from t_match m left join t_match_odds o on m.id = o.matchId where o.matchId is null and m.id limit 100";
 async function getOdds(isFinish) {
     if (noOdds) {
         console.log(new Date(), "set noOdds ...");
         return;
     }
-    const sql = "select m.id  from t_match m left join t_match_odds o on m.id = o.matchId where o.matchId is null and m.id between " + minId + " and " + maxId + " limit 100";
+    
     var matchIds = [];
     try {
         const conn = await mysql_pool.getConnection();
-        const [rows, fields] = await conn.execute(sql);
+        const [rows, fields] = await conn.execute(oddsSql);
         conn.release();
         // mysql_pool.releaseConnection(conn);
         for (var i = 0; i < rows.length; i++) {
@@ -140,7 +141,7 @@ async function getOdds(isFinish) {
         }
     } catch (e) {
         console.log(new Date(), e);
-        console.log(new Date(), "getOdds:", sql);
+        console.log(new Date(), "getOdds:", oddsSql);
     }
     if (matchIds.length > 50 || (matchIds.length > 0 && isFinish)) {
         await hook_page.evaluate((matchIds, g_providerId) => {
@@ -347,6 +348,7 @@ async function getMatch() {
 }
 //从http://www.okooo.com/soccer/match/610101/history/ 开始获取数据，最小id 为 610101 开始，
 var hook_page = null;
+
 (async () => {
     if (!minId || !maxId || isNaN(minId) || isNaN(maxId)) {
         let step = minId; //当只传一个参数时，从数据库里获取id,然后+argv[0] 为最大id,如果没有传参数，则+1000
@@ -362,7 +364,6 @@ var hook_page = null;
     if (maxId < minId) {
         maxId = minId + 1000;
     }
-
     console.log(new Date(), {
         minId,
         maxId,
