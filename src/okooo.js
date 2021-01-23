@@ -191,7 +191,7 @@ const g_cache_data = {
 };
 async function saveAll(match, boloolData, matchListHistory) {
     var values, sql, sql_values;
-    if (g_cache_data.matches.length < 50 && match) {
+    if (g_cache_data.matches.length < 10 && match) {
         g_cache_data.matches.push(match);
         g_cache_data.boloolDatas.push(boloolData);
         g_cache_data.matchListHistories.push(matchListHistory);

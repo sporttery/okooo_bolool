@@ -36,14 +36,14 @@ function getScoreSection(score, count) {
 function getMatchFromTr(tr) {
     var id = parseInt($(tr).attr("data-matchid"));
     tds = tr.children;
-    var homeName = $(tds[2]).text().replace(/\s/g,"");
+    var homeName = $(tds[2]).text().replace(/\s/g, "");
     var homeId = parseInt($(tds[2]).attr("attr"));
     var leagueId = parseInt($(tds[0]).find("a").attr("href").split("/")[3]);
-    var leagueName = $(tds[0]).find("a").text().replace(/\s/g,"");
-    var awayName = $(tds[4]).text().replace(/\s/g,"");
+    var leagueName = $(tds[0]).find("a").text().replace(/\s/g, "");
+    var awayName = $(tds[4]).text().replace(/\s/g, "");
     var awayId = parseInt($(tds[4]).attr("attr"));
-    var fullscore = $(tds[3]).text().replace(/\s/g,"");
-    var halfscore = $(tds[5]).text().replace(/\s/g,"");
+    var fullscore = $(tds[3]).text().replace(/\s/g, "");
+    var halfscore = $(tds[5]).text().replace(/\s/g, "");
     var leagueType = $(tr).attr("data-lt");
     if (!leagueType) {
         leagueType = "league";
@@ -167,12 +167,12 @@ function getBolool(hbolool, abolool) {
     return bolool;
 }
 
-function getMatchDataFromHistoryHtml(d,id){
+function getMatchDataFromHistoryHtml(d, id) {
     d = $(safeHtml(d));
     var tr = d.find(".jsThisMatch");
     var tds = tr.find("td");
     var leagueUrl = $(tds[0]).find("a").attr("href").split("/");
-    var seasonId = parseInt(leagueUrl[5]);
+    var seasonId = parseInt(leagueUrl[5]) || 0;
     var lunci = d.find("#lunci");
     if (tr.length == 0 || lunci.length == 0) {
         console.log("id=" + id + " 这场比赛没有数据");
@@ -189,16 +189,15 @@ function getMatchDataFromHistoryHtml(d,id){
     }
 
     var match = getMatchFromTr(tr[0]);
-
-    if (!match.leagueId) {
+    if (isNaN(match.homeId) || isNaN(match.awayId) || isNaN(match.leagueId) || match.homeName == "" || match.awayName == "" || match.leagueName == "") {
         console.log("id=" + id + " 这场比赛没有数据");
         return null;
     }
 
 
     match.seasonId = seasonId;
-    match.seasonName = seasonName.replace(/\s/g,"");
-    match.round = round.replace(/\s/g,"");
+    match.seasonName = seasonName.replace(/\s/g, "");
+    match.round = round.replace(/\s/g, "");
 
     var time = d.find(".time").text();
     if (time.length == 13) {
@@ -290,7 +289,7 @@ function getMatchDataFromHistoryHtml(d,id){
             isCountryTeamH = pname.indexOf("友谊赛") != -1 || pname.indexOf("国家") != -1 || pname.indexOf("奥运") != -1 || pname.indexOf("欧洲") != -1 || pname.indexOf("亚洲") != -1 ||
                 pname.indexOf("亚运") != -1 || pname.indexOf("美洲") != -1 || pname.indexOf("非洲") != -1 || pname.indexOf("世欧预") != -1 || pname.indexOf("世亚预") != -1 || pname.indexOf("世南美预") != -1;
         }
-    }else{
+    } else {
         console.log("并没有找到g_team的定义，不单独处理国家队的友谊赛");
     }
 
@@ -350,5 +349,9 @@ function getMatchDataFromHistoryHtml(d,id){
             "a": all_a
         })
     };
-    return {match, boloolData, matchListHistory};
+    return {
+        match,
+        boloolData,
+        matchListHistory
+    };
 }
