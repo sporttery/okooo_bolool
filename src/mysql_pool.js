@@ -1,6 +1,6 @@
 var mysql = require('mysql2/promise');
 var mysql_pool = mysql.createPool({
-    host: "127.0.0.1",
+    host: "database.com",
     user: "root",
     password: "876543219",
     database: "bolool",
