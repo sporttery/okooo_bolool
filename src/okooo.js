@@ -365,7 +365,8 @@ var hook_page = null;
 
     console.log(new Date(), {
         minId,
-        maxId
+        maxId,
+        noOdds
     })
 
     const Puppeteer = require('puppeteer');
