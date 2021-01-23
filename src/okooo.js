@@ -1,6 +1,6 @@
 const argv = process.argv.slice(2);
 
-console.log(new Date(),argv);
+console.log(new Date(), argv);
 var minId = parseInt(argv[0]);
 var maxId = parseInt(argv[1]);
 var noOdds = argv[2];
@@ -128,7 +128,7 @@ async function getOdds(isFinish) {
         console.log(new Date(), "set noOdds ...");
         return;
     }
-    const sql = "select m.id  from t_match m left join t_match_odds o on m.id = o.matchId where o.matchId is null";
+    const sql = "select m.id  from t_match m left join t_match_odds o on m.id = o.matchId where o.matchId is null and m.id between " + minId + " and " + maxId + " limit 100";
     var matchIds = [];
     try {
         const conn = await mysql_pool.getConnection();
@@ -174,9 +174,9 @@ async function getOdds(isFinish) {
             await saveMatchOdds();
             // }
         }
-        setTimeout(getOdds, (new Date().getTime() % 120) * 1000); //随机时间，防止被屏蔽
-    } else {
         setTimeout(getOdds, (new Date().getTime() % 50) * 1000); //随机时间，防止被屏蔽
+    } else {
+        setTimeout(getOdds, (new Date().getTime() % 20) * 1000); //随机时间，防止被屏蔽
     }
     // const finalResponse = await page.waitForResponse(response => response.url() .indexOf( '/ajax/?method=data.match.odds') !=-1 && response.status() === 200);
 }
