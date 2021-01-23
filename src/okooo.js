@@ -3,6 +3,7 @@ const argv = process.argv.slice(2);
 // console.log(new Date(),argv);
 var minId = parseInt(argv[0]);
 var maxId = parseInt(argv[1]);
+var noOdds = parseInt(argv[3]);
 
 var mysql_pool = require('./mysql_pool');
 
@@ -123,6 +124,10 @@ async function getOddsCallback(data) {
 
 }
 async function getOdds(isFinish) {
+    if (noOdds) {
+        console.log(new Date(), "set noOdds ...");
+        return;
+    }
     const sql = "select m.id  from t_match m left join t_match_odds o on m.id = o.matchId where o.matchId is null";
     var matchIds = [];
     try {
@@ -321,6 +326,7 @@ async function doFinish() {
     console.log(new Date(), "缓存odds数据入库开始");
     await getOdds(true);
     console.log(new Date(), "缓存odds入库完成");
+    console.log(new Date(), "程序正常退出");
     await process.exit();
 }
 
@@ -353,6 +359,10 @@ var hook_page = null;
         }
         maxId = minId + parseInt(step);
     }
+    if (maxId < minId) {
+        maxId = minId + 1000;
+    }
+
     console.log(new Date(), {
         minId,
         maxId
