@@ -1,0 +1,14 @@
+curl 'https://www.okooo.com/soccer/match/'$1'/history/' \
+  -H 'authority: www.okooo.com' \
+  -H 'cache-control: max-age=0' \
+  -H 'upgrade-insecure-requests: 1' \
+  -H 'user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36' \
+  -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' \
+  -H 'sec-fetch-site: none' \
+  -H 'sec-fetch-mode: navigate' \
+  -H 'sec-fetch-user: ?1' \
+  -H 'sec-fetch-dest: document' \
+  -H 'accept-language: zh-CN,zh;q=0.9' \
+  -H 'cookie: LastUrl=; __utmz=56961525.1610025385.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); FirstURL=www.okooo.com/; FirstOKURL=http%3A//www.okooo.com/soccer/; First_Source=www.okooo.com; historyShowThisMatch=1; acw_tc=2f624a1b16115016853747520e53d88413101847cb277fa2b68cb25d025249; PHPSESSID=4d60df6ab485792642daea3b466a4613c8927167; __utma=56961525.1045826141.1610025385.1610512816.1611472854.23; __utmc=56961525; Hm_lvt_5ffc07c2ca2eda4cc1c4d8e50804c94b=1610326385,1610419990,1610495459,1611472854; pm=; LStatus=N; LoginStr=%7B%22welcome%22%3A%22%u60A8%u597D%uFF0C%u6B22%u8FCE%u60A8%22%2C%22login%22%3A%22%u767B%u5F55%22%2C%22register%22%3A%22%u6CE8%u518C%22%2C%22TrustLoginArr%22%3A%7B%22alipay%22%3A%7B%22LoginCn%22%3A%22%u652F%u4ED8%u5B9D%22%7D%2C%22tenpay%22%3A%7B%22LoginCn%22%3A%22%u8D22%u4ED8%u901A%22%7D%2C%22weibo%22%3A%7B%22LoginCn%22%3A%22%u65B0%u6D6A%u5FAE%u535A%22%7D%2C%22renren%22%3A%7B%22LoginCn%22%3A%22%u4EBA%u4EBA%u7F51%22%7D%2C%22baidu%22%3A%7B%22LoginCn%22%3A%22%u767E%u5EA6%22%7D%2C%22snda%22%3A%7B%22LoginCn%22%3A%22%u76DB%u5927%u767B%u5F55%22%7D%7D%2C%22userlevel%22%3A%22%22%2C%22flog%22%3A%22hidden%22%2C%22UserInfo%22%3A%22%22%2C%22loginSession%22%3A%22___GlobalSession%22%7D; Hm_lpvt_5ffc07c2ca2eda4cc1c4d8e50804c94b=1611472867; __utmb=56961525.15.7.1611472867440' \
+  -H 'if-modified-since: Sun, 24 Jan 2021 15:21:16 GMT' \
+  --compressed -s | iconv -f gbk -t utf-8
