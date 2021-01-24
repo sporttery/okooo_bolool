@@ -413,7 +413,8 @@ var hook_page = null;
     console.log(new Date(), {
         minId,
         maxId,
-        noOdds
+        noOdds,
+        useCurl
     })
 
     const Puppeteer = require('puppeteer');
