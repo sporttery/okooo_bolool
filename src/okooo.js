@@ -5,7 +5,7 @@ var minId = parseInt(argv[0]);
 var maxId = parseInt(argv[1]);
 var noOdds = argv[2];
 
-var useCurl=process.env.use_curl
+var useCurl=process.env.useCurl
 
 var mysql_pool = require('./mysql_pool');
 const execSync = require('child_process').execSync;
@@ -122,7 +122,10 @@ async function getOddsCallback(data) {
         }
 
     } else {
+        console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
         console.log(new Date(), "getOddsCallback ", data);
+        await process.exit();
+        return;
     }
 
 }
@@ -147,14 +150,25 @@ async function getOdds(isFinish) {
         console.log(new Date(), "getOdds:", oddsSql);
     }
     if (matchIds.length > 50 || (matchIds.length > 0 && isFinish)) {
-        if(use_curl){
-            var data1 = execSync('/data/scripts/curl_odds.sh 1 ' + matchIds.join(",") );
+        if(useCurl){
+            var cmd = '/data/scripts/curl_odds.sh 1 ' + matchIds.join(",") ;
+            var data1 = execSync(cmd);
             if(data1[0]=='{'){
                 await getOddsCallback(data1);
+            }else{console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
+                console.log(new Date(),{cmd,data});
+                await process.exit();
+                return;
             }
-            var data2 = execSync('/data/scripts/curl_odds.sh 1 ' + matchIds.join(",") );
+            cmd = '/data/scripts/curl_odds.sh 2 ' + matchIds.join(",") ;
+            var data2 = execSync(cmd);
             if(data2[0]=='{'){
                 await getOddsCallback(data2);
+            }else{
+                console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
+                console.log(new Date(),{cmd,data});
+                await process.exit();
+                return;
             }
             await saveMatchOdds();
         }else{
@@ -352,9 +366,15 @@ async function getMatch() {
     if (minId <= maxId) {
         console.log(new Date(), "正在获取id " + minId + ",最大id是 " + maxId);
         if(useCurl){
-            var data = execSync('/data/scripts/curl_history.sh ' + minId);
+            var cmd = '/data/scripts/curl_history.sh ' + minId;
+            var data = execSync(cmd);
             if(data.indexOf('vscomp')!=-1){
                 await getMatchCallback(data);
+            }else{
+                console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
+                console.log(new Date(),{cmd,data});
+                await process.exit();
+                return;
             }
         }else{
             await hook_page.evaluate((id, maxId) => {
