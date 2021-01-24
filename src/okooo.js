@@ -5,7 +5,10 @@ var minId = parseInt(argv[0]);
 var maxId = parseInt(argv[1]);
 var noOdds = argv[2];
 
+var useCurl=process.env.use_curl
+
 var mysql_pool = require('./mysql_pool');
+const execSync = require('child_process').execSync;
 
 process.on('exit', async (code) => {
     try {
@@ -144,23 +147,35 @@ async function getOdds(isFinish) {
         console.log(new Date(), "getOdds:", oddsSql);
     }
     if (matchIds.length > 50 || (matchIds.length > 0 && isFinish)) {
-        await hook_page.evaluate((matchIds, g_providerId) => {
-            var postData = {
-                bettingTypeId: 1,
-                providerId: g_providerId,
-                matchIds: matchIds.join(",")
-            };
-            $.ajaxSetup({
-                async: false
-            });
-            $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
-            postData.bettingTypeId = 2;
-            $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
-            $.ajaxSetup({
-                async: true
-            });
-        }, matchIds, g_providerId);
-        if (isFinish) {
+        if(use_curl){
+            var data1 = execSync('/data/scripts/curl_odds.sh 1 ' + matchIds.join(",") );
+            if(data1[0]=='{'){
+                await getOddsCallback(data1);
+            }
+            var data2 = execSync('/data/scripts/curl_odds.sh 1 ' + matchIds.join(",") );
+            if(data2[0]=='{'){
+                await getOddsCallback(data2);
+            }
+            await saveMatchOdds();
+        }else{
+            await hook_page.evaluate((matchIds, g_providerId) => {
+                var postData = {
+                    bettingTypeId: 1,
+                    providerId: g_providerId,
+                    matchIds: matchIds.join(",")
+                };
+                $.ajaxSetup({
+                    async: false
+                });
+                $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
+                postData.bettingTypeId = 2;
+                $.post("/ajax/?method=data.match.odds", postData, getOddsCallback);
+                $.ajaxSetup({
+                    async: true
+                });
+            }, matchIds, g_providerId);
+        }
+        // if (isFinish) {
             // const oddsData = await page.waitForResponse(async response => {
             //     var url = await response.url();
             //     if (url.indexOf("/ajax/?method=data.match.odds") != -1) {
@@ -174,7 +189,7 @@ async function getOdds(isFinish) {
             // if (yapan) {
             await saveMatchOdds();
             // }
-        }
+        // }
         setTimeout(getOdds, (new Date().getTime() % 50) * 1000); //随机时间，防止被屏蔽
     } else {
         setTimeout(getOdds, (new Date().getTime() % 20) * 1000); //随机时间，防止被屏蔽
@@ -331,19 +346,30 @@ async function doFinish() {
     await process.exit();
 }
 
+
+
 async function getMatch() {
     if (minId <= maxId) {
         console.log(new Date(), "正在获取id " + minId + ",最大id是 " + maxId);
-        await hook_page.evaluate((id, maxId) => {
-            $.ajax({
-                type: "get",
-                url: "/soccer/match/" + id + "/history/",
-                beforeSend: function (xhr) {
-                    xhr.overrideMimeType("text/plain; charset=gb2312");
-                },
-                success: getMatchCallback
-            })
-        }, minId, maxId);
+        if(useCurl){
+            var data = execSync('/data/scripts/curl_history.sh ' + minId);
+            if(data.indexOf('vscomp')!=-1){
+                await getMatchCallback(data);
+            }
+        }else{
+            await hook_page.evaluate((id, maxId) => {
+                $.ajax({
+                    type: "get",
+                    url: "/soccer/match/" + id + "/history/",
+                    beforeSend: function (xhr) {
+                        xhr.overrideMimeType("text/plain; charset=gb2312");
+                    },
+                    success: getMatchCallback
+                })
+            }, minId, maxId);
+        }
+        
+
     }
 }
 //从http://www.okooo.com/soccer/match/610101/history/ 开始获取数据，最小id 为 610101 开始，
