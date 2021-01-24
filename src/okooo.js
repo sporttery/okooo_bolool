@@ -152,18 +152,18 @@ async function getOdds(isFinish) {
     if (matchIds.length > 50 || (matchIds.length > 0 && isFinish)) {
         if(useCurl){
             var cmd = '/data/scripts/curl_odds.sh 1 ' + matchIds.join(",") ;
-            var data1 = execSync(cmd);
-            if(data1[0]=='{'){
-                await getOddsCallback(data1);
+            var data = execSync(cmd);
+            if(data[0]=='{'){
+                await getOddsCallback(data);
             }else{console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
                 console.log(new Date(),{cmd,data});
                 await process.exit();
                 return;
             }
             cmd = '/data/scripts/curl_odds.sh 2 ' + matchIds.join(",") ;
-            var data2 = execSync(cmd);
-            if(data2[0]=='{'){
-                await getOddsCallback(data2);
+            data = execSync(cmd);
+            if(data[0]=='{'){
+                await getOddsCallback(data);
             }else{
                 console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
                 console.log(new Date(),{cmd,data});
