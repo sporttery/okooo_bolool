@@ -152,7 +152,7 @@ async function getOdds(isFinish) {
     if (matchIds.length > 50 || (matchIds.length > 0 && isFinish)) {
         if(useCurl){
             var cmd = '/data/scripts/curl_odds.sh 1 ' + matchIds.join(",") ;
-            var data = execSync(cmd);
+            var data = execSync(cmd).toString();
             if(data[0]=='{'){
                 await getOddsCallback(data);
             }else{console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
@@ -161,7 +161,7 @@ async function getOdds(isFinish) {
                 return;
             }
             cmd = '/data/scripts/curl_odds.sh 2 ' + matchIds.join(",") ;
-            data = execSync(cmd);
+            data = execSync(cmd).toString();
             if(data[0]=='{'){
                 await getOddsCallback(data);
             }else{
@@ -367,7 +367,7 @@ async function getMatch() {
         console.log(new Date(), "正在获取id " + minId + ",最大id是 " + maxId);
         if(useCurl){
             var cmd = '/data/scripts/curl_history.sh ' + minId;
-            var data = execSync(cmd);
+            var data = execSync(cmd).toString();
             if(data.indexOf('vscomp')!=-1){
                 await getMatchCallback(data);
             }else{
