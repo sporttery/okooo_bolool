@@ -502,7 +502,7 @@ var hook_page = null;
         await page.goto("http://www.okooo.com/jingcai/");
         await page.on('console', (msg) => {
             console.log(new Date(), 'PAGE LOG:', msg.text())
-            if(msg.text().indexOf("responded with a status of 405")){
+            if(msg.text().indexOf("responded with a status of 405") !=-1 ){
                 process.exit();
             }
         });
