@@ -4,8 +4,10 @@ console.log(new Date(), argv);
 var minId = parseInt(argv[0]);
 var maxId = parseInt(argv[1]);
 var noOdds = argv[2];
-
-var useCurl=process.env.useCurl
+//使用curl 获取数据
+var useCurl = process.env.useCurl;
+//不抓取赛程
+var noMatch = process.env.noMatch;
 
 var mysql_pool = require('./mysql_pool');
 const execSync = require('child_process').execSync;
@@ -13,7 +15,7 @@ const execSync = require('child_process').execSync;
 process.on('exit', async (code) => {
     try {
         await mysql_pool.end()
-    } catch (e) {}
+    } catch (e) { }
 })
 
 async function getIdFromDb() {
@@ -135,7 +137,7 @@ async function getOdds(isFinish) {
         console.log(new Date(), "set noOdds ...");
         return;
     }
-    
+
     var matchIds = [];
     try {
         const conn = await mysql_pool.getConnection();
@@ -150,28 +152,29 @@ async function getOdds(isFinish) {
         console.log(new Date(), "getOdds:", oddsSql);
     }
     if (matchIds.length > 50 || (matchIds.length > 0 && isFinish)) {
-        if(useCurl){
-            var cmd = '/data/scripts/curl_odds.sh 1 ' + matchIds.join(",") ;
+        if (useCurl) {
+            var cmd = '/data/scripts/curl_odds.sh 1 ' + matchIds.join(",");
             var data = execSync(cmd).toString();
-            if(data[0]=='{'){
+            if (data[0] == '{') {
                 await getOddsCallback(data);
-            }else{console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
-                console.log(new Date(),{cmd,data});
+            } else {
+                console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
+                console.log(new Date(), { cmd, data });
                 await process.exit();
                 return;
             }
-            cmd = '/data/scripts/curl_odds.sh 2 ' + matchIds.join(",") ;
+            cmd = '/data/scripts/curl_odds.sh 2 ' + matchIds.join(",");
             data = execSync(cmd).toString();
-            if(data[0]=='{'){
+            if (data[0] == '{') {
                 await getOddsCallback(data);
-            }else{
+            } else {
                 console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
-                console.log(new Date(),{cmd,data});
+                console.log(new Date(), { cmd, data });
                 await process.exit();
                 return;
             }
             await saveMatchOdds();
-        }else{
+        } else {
             await hook_page.evaluate((matchIds, g_providerId) => {
                 var postData = {
                     bettingTypeId: 1,
@@ -190,19 +193,19 @@ async function getOdds(isFinish) {
             }, matchIds, g_providerId);
         }
         // if (isFinish) {
-            // const oddsData = await page.waitForResponse(async response => {
-            //     var url = await response.url();
-            //     if (url.indexOf("/ajax/?method=data.match.odds") != -1) {
-            //         // var text = await response.text();
-            //         // return text.indexOf("-") !=-1  || text.indexOf("球") !=-1 || text.indexOf("0.") !=-1 || text.indexOf("/") !=-1;
-            //         return await response.text();
-            //     }
-            // });
-            // getOddsCallback(oddsData);
-            // var yapan = oddsData.indexOf("-") != -1 || oddsData.indexOf("球") != -1 || oddsData.indexOf("0.") != -1 || oddsData.indexOf("/") != -1;
-            // if (yapan) {
-            await saveMatchOdds();
-            // }
+        // const oddsData = await page.waitForResponse(async response => {
+        //     var url = await response.url();
+        //     if (url.indexOf("/ajax/?method=data.match.odds") != -1) {
+        //         // var text = await response.text();
+        //         // return text.indexOf("-") !=-1  || text.indexOf("球") !=-1 || text.indexOf("0.") !=-1 || text.indexOf("/") !=-1;
+        //         return await response.text();
+        //     }
+        // });
+        // getOddsCallback(oddsData);
+        // var yapan = oddsData.indexOf("-") != -1 || oddsData.indexOf("球") != -1 || oddsData.indexOf("0.") != -1 || oddsData.indexOf("/") != -1;
+        // if (yapan) {
+        await saveMatchOdds();
+        // }
         // }
         setTimeout(getOdds, (new Date().getTime() % 50) * 1000); //随机时间，防止被屏蔽
     } else {
@@ -365,18 +368,18 @@ async function doFinish() {
 async function getMatch() {
     if (minId <= maxId) {
         console.log(new Date(), "正在获取id " + minId + ",最大id是 " + maxId);
-        if(useCurl){
+        if (useCurl) {
             var cmd = '/data/scripts/curl_history.sh ' + minId;
             var data = execSync(cmd).toString();
-            if(data.indexOf('vscomp')!=-1){
+            if (data.indexOf('vscomp') != -1) {
                 await getMatchCallback(data);
-            }else{
+            } else {
                 console.log("程序出错了，获取了错误的数据，即将退出，请技术人员核查");
-                console.log(new Date(),{cmd,data});
+                console.log(new Date(), { cmd, data });
                 await process.exit();
                 return;
             }
-        }else{
+        } else {
             await hook_page.evaluate((id, maxId) => {
                 $.ajax({
                     type: "get",
@@ -388,7 +391,7 @@ async function getMatch() {
                 })
             }, minId, maxId);
         }
-        
+
 
     }
 }
@@ -414,7 +417,8 @@ var hook_page = null;
         minId,
         maxId,
         noOdds,
-        useCurl
+        useCurl,
+        noMatch
     })
 
     const Puppeteer = require('puppeteer');
@@ -441,54 +445,54 @@ var hook_page = null;
         await page.evaluateOnNewDocument(() => {
             Object.defineProperty(navigator, 'plugins', {
                 get: () => [{
-                        0: {
-                            type: "application/x-google-chrome-pdf",
-                            suffixes: "pdf",
-                            description: "Portable Document Format",
-                            enabledPlugin: Plugin
-                        },
+                    0: {
+                        type: "application/x-google-chrome-pdf",
+                        suffixes: "pdf",
                         description: "Portable Document Format",
-                        filename: "internal-pdf-viewer",
-                        length: 1,
-                        name: "Chrome PDF Plugin"
+                        enabledPlugin: Plugin
                     },
-                    {
-                        0: {
-                            type: "application/pdf",
-                            suffixes: "pdf",
-                            description: "",
-                            enabledPlugin: Plugin
-                        },
+                    description: "Portable Document Format",
+                    filename: "internal-pdf-viewer",
+                    length: 1,
+                    name: "Chrome PDF Plugin"
+                },
+                {
+                    0: {
+                        type: "application/pdf",
+                        suffixes: "pdf",
                         description: "",
-                        filename: "mhjfbmdgcfjbbpaeojofohoefgiehjai",
-                        length: 1,
-                        name: "Chrome PDF Viewer"
+                        enabledPlugin: Plugin
                     },
-                    {
-                        0: {
-                            type: "application/x-nacl",
-                            suffixes: "",
-                            description: "Native Client Executable",
-                            enabledPlugin: Plugin
-                        },
-                        1: {
-                            type: "application/x-pnacl",
-                            suffixes: "",
-                            description: "Portable Native Client Executable",
-                            enabledPlugin: Plugin
-                        },
-                        description: "",
-                        filename: "internal-nacl-plugin",
-                        length: 2,
-                        name: "Native Client"
-                    }
+                    description: "",
+                    filename: "mhjfbmdgcfjbbpaeojofohoefgiehjai",
+                    length: 1,
+                    name: "Chrome PDF Viewer"
+                },
+                {
+                    0: {
+                        type: "application/x-nacl",
+                        suffixes: "",
+                        description: "Native Client Executable",
+                        enabledPlugin: Plugin
+                    },
+                    1: {
+                        type: "application/x-pnacl",
+                        suffixes: "",
+                        description: "Portable Native Client Executable",
+                        enabledPlugin: Plugin
+                    },
+                    description: "",
+                    filename: "internal-nacl-plugin",
+                    length: 2,
+                    name: "Native Client"
+                }
                 ],
             });
 
             window.chrome = {
                 runtime: {},
-                loadTimes: function () {},
-                csi: function () {},
+                loadTimes: function () { },
+                csi: function () { },
                 app: {}
             };
             Object.defineProperty(navigator, 'webdriver', {
@@ -502,7 +506,7 @@ var hook_page = null;
         await page.goto("http://www.okooo.com/jingcai/");
         await page.on('console', (msg) => {
             console.log(new Date(), 'PAGE LOG:', msg.text())
-            if(msg.text().indexOf("responded with a status of 405") !=-1 ){
+            if (msg.text().indexOf("responded with a status of 405") != -1) {
                 process.exit();
             }
         });
@@ -527,7 +531,9 @@ var hook_page = null;
         //     getMatch(minId, maxId);
         // }, minId, maxId);
         await getOdds();
-        await getMatch();
+        if (!noMatch) {
+            await getMatch();
+        }
         // await inject(page);
 
     });
