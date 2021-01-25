@@ -73,7 +73,7 @@ async function saveMatchOdds() {
             if (typeof value == "undefined") {
                 values.push("null");
             } else if (isNaN(value) || value === "") {
-                values.push("'" + value + "'");
+                values.push("'" + value.replace(/'/g,"‘") + "'");
             } else {
                 values.push(value);
             }
@@ -239,7 +239,7 @@ async function saveAll(match, boloolData, matchListHistory) {
             for (var j = 0; j < MATCH_COLUMNS.length; j++) {
                 var value = match[MATCH_COLUMNS[j]];
                 if (isNaN(value) || value === "") {
-                    values.push("'" + value + "'");
+                    values.push("'" + value.replace(/'/g,"‘")  + "'");
                 } else {
                     values.push(value);
                 }
@@ -270,7 +270,7 @@ async function saveAll(match, boloolData, matchListHistory) {
                 for (var j = 0; j < BOLOOL_COLUMNS.length; j++) {
                     var value = bolool[BOLOOL_COLUMNS[j]];
                     if (isNaN(value) || value === "") {
-                        values.push("'" + value + "'");
+                        values.push("'" + value.replace(/'/g,"‘")  + "'");
                     } else {
                         values.push(value);
                     }
@@ -301,7 +301,7 @@ async function saveAll(match, boloolData, matchListHistory) {
             for (var j = 0; j < MATCH_HISTORY_COLUMNS.length; j++) {
                 var value = matchListHistory[MATCH_HISTORY_COLUMNS[j]];
                 if (isNaN(value) || value === "") {
-                    values.push("'" + value + "'");
+                    values.push("'" + value.replace(/'/g,"‘")  + "'");
                 } else {
                     values.push(value);
                 }
