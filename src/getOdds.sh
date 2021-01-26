@@ -13,6 +13,9 @@ fi
   exit
 }
 [ ! -d ../odds ] && mkdir ../odds
+running=1
+while [ $running -eq 1 ]
+do
 echo $(date +"%F %T")执行中
 ids=""
 count=0
@@ -54,9 +57,14 @@ if [ $? -eq 0 ] ; then
 if [ $count -eq 100 ] ; then
   sleep 0.$((firstId % 10))
   echo "继续后一轮数据处理"
-  $0 $*
+  running=1
+else
+  echo "最后一波处理完了"
+  running=0
 fi
 else
 echo 程序出错了，退出
 exit
 fi
+
+done
