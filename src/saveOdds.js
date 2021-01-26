@@ -39,12 +39,6 @@ for (var key in oddsData) {
 }
 
 
-process.on('exit', async (code) => {
-    try {
-        await mysql_pool.end()
-    } catch (e) { }
-})
-
 
 async function main() {
 
@@ -53,7 +47,12 @@ async function main() {
     try {
         const conn = await mysql_pool.getConnection();
         const [rows, fields] = await conn.execute(sql);
-        conn.release();
+        try {
+            await conn.release();
+            await mysql_pool.end()
+        } catch (e1) { 
+            console.log(new Date(), e1,"mysql_pool end");
+        }
         // mysql_pool.releaseConnection(conn);
         console.log(new Date(), "insert into t_match_odds ", rows.info);
         fs.unlinkSync(argv[0]);
