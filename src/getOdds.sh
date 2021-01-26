@@ -7,7 +7,7 @@ cd /data/okooo_bolool
 echo $(date +"%F %T")执行中
 ids=""
 count=0
-for id in $(mysql -uroot -s -p876543219 -Dbolool -e "select m.id from t_match m left join t_match_odds o  on m.id = o.matchId where o.matchId is null order by m.id asc limit 100;")
+for id in $(mysql -uroot -h database.com -s -p876543219 -Dbolool -e "select m.id from t_match m left join t_match_odds o  on m.id = o.matchId where o.matchId is null order by m.id asc limit 100;")
 do
 expr $id "+" 10 &> /dev/null
 if [ $? -eq 0 ];then
