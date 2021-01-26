@@ -1,9 +1,9 @@
 #!/bin/sh
-cd /data/okooo_bolool
 [ ! -x src/curl_odds.sh -o ! -f src/saveOdds.js ] && {
-  echo "找不到`pwd`/src/curl_odds.sh 或者  `pwd`/src/saveOdds.js 文件"
+  echo "找不到可执行文件`pwd`/src/curl_odds.sh 或者  `pwd`/src/saveOdds.js 文件"
   exit
 }
+[ ! -d ../odds ] && mkdir ../odds
 echo $(date +"%F %T")执行中
 ids=""
 count=0
@@ -18,12 +18,12 @@ done
 echo "共获取$count条数据等待处理"
 
 
-data1file=/data/odds/${ids:1:30}-1.js
+data1file=../odds/${ids:1:30}-1.js
 echo "获取欧盘数据"
 src/curl_odds.sh 1 ${ids:1} > $data1file
 firstId=${ids:1:6}
 sleep 0.$((firstId % 10))
-data2file=/data/odds/${ids:1:30}-2.js
+data2file=../odds/${ids:1:30}-2.js
 echo "获取亚盘数据"
 src/curl_odds.sh 2 ${ids:1} > $data2file
 echo "处理数据并入库"
