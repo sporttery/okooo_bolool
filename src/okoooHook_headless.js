@@ -214,8 +214,8 @@ function getMatchDataFromHistoryHtml(d, id) {
     matchtime = new Date(playtime[0], playtime[1], playtime[2], playtime[3], playtime[4], playtime[5]);
 
     if (now < matchtime.getTime()) {
-        console.log(match.playtime + " 日期已经大于今天1周了，结束程序");
-        console.log(match);
+        console.log(match.playtime + " 日期已经大于今天1周了，暂时不处理这场比赛");
+        // console.log(match);
         return null;
     }
 
