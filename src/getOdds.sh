@@ -29,12 +29,12 @@ fi
 done
 echo "共获取$count条数据等待处理"
 
-
+echo "ids:${ids:1}"
 data1file=../odds/${ids:1:30}-1.js
 echo "获取欧盘数据"
 data1=$(src/curl_odds.sh 1 ${ids:1})
-if [ '${data1:0:1}' == "{" -o '${data1:0:5}' == "false" ]; then
-echo '${data1}' > $data1file
+if [ "${data1:0:2}" == '""' -o  ${data1:0:1} == "{" -o ${data1:0:5} == "false" ]; then
+echo ${data1} > $data1file
 else
 echo 获取欧盘数据失败，内容是 $data1
 exit
@@ -45,14 +45,14 @@ sleep 0.$((firstId % 10))
 data2file=../odds/${ids:1:30}-2.js
 echo "获取亚盘数据"
 data2=$(src/curl_odds.sh 2 ${ids:1})
-if [ '${data2:0:1}' == "{" -o '${data2:0:5}' == "false" ]; then
-echo '${data2}' > $data2file
+if [ "${data2:0:2}" == '""' -o ${data2:0:1} == "{" -o ${data2:0:5} == "false" ]; then
+echo ${data2} > $data2file
 else
 echo 获取亚盘数据失败，内容是 $data2
 exit
 fi
 echo "处理数据并入库"
-node src/saveOdds.js $data1file $data2file ${ids:1} | grep -q "Warnings: 0"
+node src/saveOdds.js $data1file $data2file ${ids:1} | grep  "Warnings: 0"
 if [ $? -eq 0 ] ; then
 if [ $count -eq 100 ] ; then
   sleep 0.$((firstId % 10))
