@@ -14,7 +14,7 @@ for (var i = 0; i < ids.length; i++) {
 if (data1 != "false") {
     var tmpData = JSON.parse(data1);
     for (let key in tmpData) {
-        var odds = tmpData(key);
+        var odds = tmpData[key];
         oddsData[key][0] = odds[0];
         oddsData[key][1] = odds[1];
         oddsData[key][2] = odds[2];
@@ -24,7 +24,7 @@ if (data1 != "false") {
 if (data2 != "false") {
     var tmpData = JSON.parse(data2);
     for (let key in tmpData) {
-        var odds = tmpData(key);
+        var odds = tmpData[key];
         oddsData[key][3] = odds[0];
         oddsData[key][4] = odds[1];
         oddsData[key][5] = odds[2];
