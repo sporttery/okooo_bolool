@@ -13,12 +13,15 @@ done
 echo "共获取$count条数据等待处理"
 
 data1file=/data/odds/${ids:1:30}-1.js
+echo "获取欧盘数据"
 /data/scripts/curl_odds.sh 1 ${ids:1} > $data1file
 firstId=${ids:1:6}
 sleep 0.$((firstId % 10))
 data2file=/data/odds/${ids:1:30}-2.js
+echo "获取亚盘数据"
 /data/scripts/curl_odds.sh 2 ${ids:1} > $data2file
 cd /data/okooo_bolool
+echo "处理数据并入库"
 node src/saveOdds.js $data1file $data2file ${ids:1}
 if [ $count -eq 100 ] ; then
   echo "继续后一轮数据处理"
