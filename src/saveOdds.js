@@ -38,25 +38,31 @@ for (var key in oddsData) {
     sql_values.push("(" + [key, 27, odds[0], odds[1], odds[2], odds[3], "'" + odds[4] + "'", odds[5]].join(",") + ")");
 }
 
+
 process.on('exit', async (code) => {
     try {
         await mysql_pool.end()
     } catch (e) { }
 })
 
-    (async () => {
 
-        var mysql_pool = require('./mysql_pool');
-        const sql = ODDS_SQL + sql_values.join(",") + " ON DUPLICATE KEY UPDATE `version` = `version` + 1 ";
-        try {
-            const conn = await mysql_pool.getConnection();
-            const [rows, fields] = await conn.execute(sql);
-            conn.release();
-            // mysql_pool.releaseConnection(conn);
-            console.log(new Date(), "insert into t_match_odds ", rows.info);
-           
-        } catch (e) {
-            console.log(new Date(), e);
-            console.log(new Date(), "saveMatchOdds:" + sql);
-        }
-    })()
+async function main() {
+
+    var mysql_pool = require('./mysql_pool');
+    const sql = ODDS_SQL + sql_values.join(",") + " ON DUPLICATE KEY UPDATE `version` = `version` + 1 ";
+    try {
+        const conn = await mysql_pool.getConnection();
+        const [rows, fields] = await conn.execute(sql);
+        conn.release();
+        // mysql_pool.releaseConnection(conn);
+        console.log(new Date(), "insert into t_match_odds ", rows.info);
+        fs.unlinkSync(argv[0]);
+        fs.unlinkSync(argv[1]);
+    } catch (e) {
+        console.log(new Date(), e);
+        console.log(new Date(), "saveMatchOdds:" + sql);
+    }
+}
+
+
+main();
