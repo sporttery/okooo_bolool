@@ -33,7 +33,7 @@ const ODDS_COLUMNS = "matchId,companyId,s,p,f,h,pan,a".split(",");
 const MATCH_COLUMNS = "id,leagueId,leagueName,leagueType,seasonId,seasonName,round,homeId,homeName,awayId,awayName,playtime,fullscore,halfscore,result,goalscore".split(
   ","
 );
-const BOLOOL_COLUMNS = "matchId,hscore,ascore,hresult,aresult,hsection,asection,hstrong,astrong,topN,friendly".split(
+const BOLOOL_COLUMNS = "id,hscore,ascore,hresult,aresult,hsection,asection".split(
   ","
 );
 const MATCH_HISTORY_COLUMNS = "id,matchlist".split(",");
@@ -42,7 +42,7 @@ const ODDS_SQL =
 const MATCH_SQL =
   "insert into t_match(id,leagueId,leagueName,leagueType,seasonId,seasonName,round,homeId,homeName,awayId,awayName,playtime,fullscore,halfscore,result,goalscore) values ";
 const BOLOOL_SQL =
-  "insert into t_bolool(matchId,hscore,ascore,hresult,aresult,hsection,asection,hstrong,astrong,topN,friendly) values ";
+  "insert into t_bolool(id,hscore,ascore,hresult,aresult,hsection,asection) values ";
 const MATCH_HISTORY_SQL = "insert into t_match_history(id,matchlist) values ";
 
 const g_providerId = 27;
@@ -286,32 +286,48 @@ async function saveAll(match, boloolData, matchListHistory) {
       }
     }
 
-    sql_values = [];
+
+    sql_va3ues30 = [];
+    sql_values33 = [];
+    
     var boloolDatas = g_cache_data.boloolDatas;
     for (var idx = 0; idx < boloolDatas.length; idx++) {
       boloolData = boloolDatas[idx];
-      for (var key in boloolData) {
-        var bolool = boloolData[key];
-        values = [];
-        for (var j = 0; j < BOLOOL_COLUMNS.length; j++) {
-          var value = bolool[BOLOOL_COLUMNS[j]];
-          if (isNaN(value) || value === "") {
-            values.push("'" + value.replace(/'/g, "‘") + "'");
-          } else {
-            values.push(value);
-          }
+      var bolool = boloolData["top30"];
+      
+      values = [];
+      for (var j = 0; j < BOLOOL_COLUMNS.length; j++) {
+        var value = bolool[BOLOOL_COLUMNS[j]];
+        if (isNaN(value) || value === "") {
+          values.push("'" + value.replace(/'/g, "‘") + "'");
+        } else {
+          values.push(value);
         }
-        sql_values.push("(" + values.join(",") + ")");
       }
+      sql_values30.push("(" + values.join(",") + ")");
+
+      bolool = boloolData["top33"];
+      
+      values = [];
+      for (var j = 0; j < BOLOOL_COLUMNS.length; j++) {
+        var value = bolool[BOLOOL_COLUMNS[j]];
+        if (isNaN(value) || value === "") {
+          values.push("'" + value.replace(/'/g, "‘") + "'");
+        } else {
+          values.push(value);
+        }
+      }
+      sql_values33.push("(" + values.join(",") + ")");
+      
     }
-    if (sql_values.length > 0) {
+    if (sql_values30.length > 0) {
       sql =
-        BOLOOL_SQL +
-        sql_values.join(",") +
-        " ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection),hstrong = values(hstrong),astrong = values(astrong)";
+        BOLOOL_SQL.replace("t_bolool","t_bolool30") +
+        sql_values30.join(",") +
+        " ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection)";
       try {
         const [rows, fields] = await conn.execute(sql);
-        console.log(new Date(), "insert into t_bolool ", rows.info);
+        console.log(new Date(), "insert into t_bolool 30", rows.info);
         g_cache_data.boloolDatas = [];
         needCommit = true;
       } catch (e) {
@@ -320,6 +336,23 @@ async function saveAll(match, boloolData, matchListHistory) {
         console.log(new Date(), "saveAll:", sql);
       }
     }
+    if (sql_values33.length > 0) {
+      sql =
+        BOLOOL_SQL.replace("t_bolool","t_bolool33") +
+        sql_values33.join(",") +
+        " ON DUPLICATE KEY UPDATE `version` = `version` + 1,hscore = values(hscore),ascore = values(ascore),hresult = values(hresult),aresult = values(aresult),hsection = values(hsection),asection = values(asection)";
+      try {
+        const [rows, fields] = await conn.execute(sql);
+        console.log(new Date(), "insert into t_bolool33 ", rows.info);
+        g_cache_data.boloolDatas = [];
+        needCommit = true;
+      } catch (e) {
+        conn.rollback();
+        console.log(new Date(), "事务回滚", e.sqlMessage, e);
+        console.log(new Date(), "saveAll:", sql);
+      }
+    }
+
 
     sql_values = [];
     var matchListHistories = g_cache_data.matchListHistories;

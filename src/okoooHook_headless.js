@@ -305,6 +305,7 @@ function getMatchDataFromHistoryHtml(d, id) {
     bolool.topN = topN;
     bolool.friendly = 0;
     bolool.matchId = match.id;
+    bolool.id = match.id;
     boloolData["top" + topN] = bolool;
 
 
@@ -317,29 +318,30 @@ function getMatchDataFromHistoryHtml(d, id) {
     bolool.topN = topN;
     bolool.friendly = 1;
     bolool.matchId = match.id;
+    bolool.id = match.id;
     boloolData["top" + topN] = bolool;
 
-    topN = 6;
-    hbolool = calcBolool(all_h, topN, isCountryTeamH ? 1 : 0);
-    abolool = calcBolool(all_a, topN, isCountryTeamH ? 1 : 0);
-    hbolool.strong = getStrong(hbolool.score, abolool.score);
-    abolool.strong = getStrong(abolool.score, hbolool.score);
-    bolool = getBolool(hbolool, abolool);
-    bolool.topN = topN;
-    bolool.friendly = 1;
-    bolool.matchId = match.id;
-    boloolData["top" + topN] = bolool;
+    // topN = 6;
+    // hbolool = calcBolool(all_h, topN, isCountryTeamH ? 1 : 0);
+    // abolool = calcBolool(all_a, topN, isCountryTeamH ? 1 : 0);
+    // hbolool.strong = getStrong(hbolool.score, abolool.score);
+    // abolool.strong = getStrong(abolool.score, hbolool.score);
+    // bolool = getBolool(hbolool, abolool);
+    // bolool.topN = topN;
+    // bolool.friendly = 1;
+    // bolool.matchId = match.id;
+    // boloolData["top" + topN] = bolool;
 
-    topN = 3;
-    hbolool = calcBolool(all_h, topN, isCountryTeamH ? 1 : 0);
-    abolool = calcBolool(all_a, topN, isCountryTeamH ? 1 : 0);
-    hbolool.strong = getStrong(hbolool.score, abolool.score);
-    abolool.strong = getStrong(abolool.score, hbolool.score);
-    bolool = getBolool(hbolool, abolool);
-    bolool.topN = topN;
-    bolool.friendly = 1;
-    bolool.matchId = match.id;
-    boloolData["top" + topN] = bolool;
+    // topN = 3;
+    // hbolool = calcBolool(all_h, topN, isCountryTeamH ? 1 : 0);
+    // abolool = calcBolool(all_a, topN, isCountryTeamH ? 1 : 0);
+    // hbolool.strong = getStrong(hbolool.score, abolool.score);
+    // abolool.strong = getStrong(abolool.score, hbolool.score);
+    // bolool = getBolool(hbolool, abolool);
+    // bolool.topN = topN;
+    // bolool.friendly = 1;
+    // bolool.matchId = match.id;
+    // boloolData["top" + topN] = bolool;
 
 
     var matchListHistory = {

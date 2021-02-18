@@ -20,25 +20,34 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 -- Table structure for t_bolool
 -- ----------------------------
-DROP TABLE IF EXISTS `t_bolool`;
-CREATE TABLE `t_bolool`  (
+DROP TABLE IF EXISTS `t_bolool33`;
+CREATE TABLE `t_bolool33`  (
   `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'match_id',
-  `matchId` int(11) NULL DEFAULT NULL,
   `hscore` tinyint(4) UNSIGNED NULL DEFAULT NULL,
   `ascore` tinyint(4) UNSIGNED NULL DEFAULT NULL,
   `hresult` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `aresult` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
   `hsection` tinyint(2) UNSIGNED NULL DEFAULT NULL,
   `asection` tinyint(2) UNSIGNED NULL DEFAULT NULL,
-  `hstrong` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
-  `astrong` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
-  `topN` tinyint(2) UNSIGNED NULL DEFAULT NULL COMMENT '前多少场比赛',
-  `friendly` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '0 没有友谊赛 1 全部比赛 2 只有友谊赛',
   `insertTime` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
   `version` int(11) UNSIGNED NULL DEFAULT 0,
   `updateTime` timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0),
   PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `idx_match_id`(`matchId`, `topN`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2601 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+DROP TABLE IF EXISTS `t_bolool30`;
+CREATE TABLE `t_bolool30`  (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'match_id',
+  `hscore` tinyint(4) UNSIGNED NULL DEFAULT NULL,
+  `ascore` tinyint(4) UNSIGNED NULL DEFAULT NULL,
+  `hresult` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `aresult` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL,
+  `hsection` tinyint(2) UNSIGNED NULL DEFAULT NULL,
+  `asection` tinyint(2) UNSIGNED NULL DEFAULT NULL,
+  `insertTime` timestamp(0) NULL DEFAULT CURRENT_TIMESTAMP(0),
+  `version` int(11) UNSIGNED NULL DEFAULT 0,
+  `updateTime` timestamp(0) NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP(0),
+  PRIMARY KEY (`id`) USING BTREE,
 ) ENGINE = InnoDB AUTO_INCREMENT = 2601 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
