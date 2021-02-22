@@ -287,7 +287,7 @@ async function saveAll(match, boloolData, matchListHistory) {
     }
 
 
-    sql_va3ues30 = [];
+    sql_values30 = [];
     sql_values33 = [];
     
     var boloolDatas = g_cache_data.boloolDatas;
@@ -408,6 +408,8 @@ async function getMatchCallback(d) {
   );
   if (data) {
     saveAll(data.match, data.boloolData, data.matchListHistory);
+  }else{
+    saveAll();
   }
 
   if (minId < maxId) {
