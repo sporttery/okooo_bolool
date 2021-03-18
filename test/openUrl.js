@@ -114,7 +114,9 @@ if(argv[1] == "false"){
 
         await page.on('request',async function(req){
             var url = await req.url();
-            console.log('request ',url);
+            if(url.indexOf("/api")!=-1){
+                console.log('request ',url);
+            }
         })
 
         function waitForExit(n_sec){
