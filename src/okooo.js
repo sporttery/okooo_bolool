@@ -500,11 +500,8 @@ var hook_page = null;
   const Puppeteer = require("puppeteer");
   await Puppeteer.launch({
     headless: true,
-    defaultViewport: {
-      width: 1920,
-      height: 966,
-    },
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    defaultViewport: null,
+    args: ["--no-sandbox", "--disable-setuid-sandbox","--start-maximized"],
     ignoreHTTPSErrors: true,
     //ignoreDefaultArgs: ["--enable-automation"]
     // devtools: true
@@ -578,7 +575,7 @@ var hook_page = null;
     });
 
     await page.goto("http://www.okooo.com/jingcai/");
-    await page.on("console", (msg) => {
+    page.on("console", (msg) => {
       console.log(new Date(), "PAGE LOG:", msg.text());
       if (msg.text().indexOf("responded with a status of 405") != -1) {
         process.exit();

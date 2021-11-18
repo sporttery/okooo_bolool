@@ -1,4 +1,4 @@
-//从http://www.okooo.com/soccer/match/610101/history/ 开始获取数据，最小id 为 610101 开始，
+//从//www.okooo.com/soccer/match/610101/history/ 开始获取数据，最小id 为 610101 开始，
 
 
 var g_cache,
@@ -8,8 +8,8 @@ var g_cache,
     g_id_start = {},
     g_id_finish = {};
 
-// const apiDomain = "http://42.192.75.9/api";
-const apiDomain = "http://127.0.0.1:8080/api";
+// const apiDomain = "//42.192.75.9/api";
+const apiDomain = "//127.0.0.1:8080/api";
 
 function safeHtml(d) {
     return d.replace(/[\r\n]/g, "").replace(/<head.+?<\/head>/g, "").replace(/<script.+?<\/script>/g, "").replace(/<img.+?>/g, "").replace(/<link.+?>/g, "").replace(/<style.+?<\/style>/g, "");
@@ -449,13 +449,13 @@ function getMatchCallback(id, maxId) {
         if (g_cache) {
             var tr = [];
             tr.push('<tr id="m' + match.id + '" class="noOdds">');
-            tr.push('<td><a href="http://www.okooo.com/soccer/league/' + match.leagueId + '/" target="_blank">' + match.leagueName + '</a></td>');
-            tr.push('<td><a href="http://www.okooo.com/soccer/league/' + match.leagueId + '/schedule/' + match.seasonId + '/" target="_blank">' + match.seasonName + '</a></td>');
+            tr.push('<td><a href="//www.okooo.com/soccer/league/' + match.leagueId + '/" target="_blank">' + match.leagueName + '</a></td>');
+            tr.push('<td><a href="//www.okooo.com/soccer/league/' + match.leagueId + '/schedule/' + match.seasonId + '/" target="_blank">' + match.seasonName + '</a></td>');
             tr.push('<td>' + match.round + '</td>');
-            tr.push('<td><a href="http://www.okooo.com/soccer/match/' + match.id + '/history/" target="_blank">' + match.playtime + '</a></td>');
-            tr.push('<td><a href="http://www.okooo.com/soccer/team/' + match.homeId + '/" target="_blank">' + match.homeName + '</a></td>');
-            tr.push('<td><a href="http://www.okooo.com/soccer/match/' + match.id + '/" target="_blank">' + (match.result != "未开" ? match.fullscore + '<br/>(' + match.halfscore + ")" : "") + '</a></td>');
-            tr.push('<td><a href="http://www.okooo.com/soccer/team/' + match.awayId + '/" target="_blank">' + match.awayName + '</a></td>');
+            tr.push('<td><a href="//www.okooo.com/soccer/match/' + match.id + '/history/" target="_blank">' + match.playtime + '</a></td>');
+            tr.push('<td><a href="//www.okooo.com/soccer/team/' + match.homeId + '/" target="_blank">' + match.homeName + '</a></td>');
+            tr.push('<td><a href="//www.okooo.com/soccer/match/' + match.id + '/" target="_blank">' + (match.result != "未开" ? match.fullscore + '<br/>(' + match.halfscore + ")" : "") + '</a></td>');
+            tr.push('<td><a href="//www.okooo.com/soccer/team/' + match.awayId + '/" target="_blank">' + match.awayName + '</a></td>');
             tr.push('<td class="odds1_' + match.id + '">--</td><td class="odds1_' + match.id + '">--</td><td class="odds1_' + match.id + '">--</td><td class="odds2_' + match.id + '">--</td><td class="odds2_' + match.id + '">--</td><td class="odds2_' + match.id + '">--</td>');
             tr.push('<td><span class="top33" title="' + boloolData["top33"].hresult + '">' + boloolData["top33"].hscore + '</span><span class="top30" title="' + boloolData["top30"].hresult + '">' + boloolData["top30"].hscore + '</span></td>');
             tr.push('<td><span class="top33" title="' + boloolData["top33"].aresult + '">' + boloolData["top33"].ascore + '</span><span class="top30" title="' + boloolData["top30"].aresult + '">' + boloolData["top30"].ascore + '</span></td>');
@@ -629,7 +629,7 @@ function ckchange(obj) {
 
 function doHook() {
     if (location.href.indexOf("42.192.75.9") == -1) {
-        if (location.href != "http://www.okooo.com/jingcai/") {
+        if (!location.href.endsWith("//www.okooo.com/jingcai/")) {
             if (document.getElementById("second")) {
                 second = parseInt(document.getElementById("second").innerHTML);
                 if (isNaN(second)) {
@@ -638,12 +638,12 @@ function doHook() {
                     second = second - 1;
                 }
                 if (second < 0) {
-                    location.href = "http://www.okooo.com/jingcai/";
+                    location.href = "//www.okooo.com/jingcai/";
                 } else {
                     document.getElementById("second").innerHTML = second;
                 }
             } else {
-                document.writeln('这个页面不能处理脚本，<font id="second" style="color:red">5</font>即将跳到正确的页面。<a href="http://www.okooo.com/jingcai/">跳转</a>');
+                document.writeln('这个页面不能处理脚本，<font id="second" style="color:red">5</font>即将跳到正确的页面。<a href="//www.okooo.com/jingcai/">跳转</a>');
             }
             setTimeout(doHook, 1000);
             return;
